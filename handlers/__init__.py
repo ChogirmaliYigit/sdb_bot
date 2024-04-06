@@ -1,17 +1,19 @@
 from aiogram import Router
-
-from filters import ChatPrivateFilter
+from aiogram.enums.chat_type import ChatType
+from filters import ChatTypeFilter
 
 
 def setup_routers() -> Router:
-    from .users import admin, start, help, echo
+    from .users import admin, start, help, order, cart_orders_settings
     from .errors import error_handler
+    from .groups import start as group_start
 
     router = Router()
 
-    # Agar kerak bo'lsa, o'z filteringizni o'rnating
-    start.router.message.filter(ChatPrivateFilter(chat_type=["private"]))
+    start.router.message.filter(ChatTypeFilter(chat_type=ChatType.PRIVATE))
+    group_start.router.message.filter(ChatTypeFilter(chat_type=[ChatType.GROUP, ChatType.SUPERGROUP]))
 
-    router.include_routers(admin.router, start.router, help.router, echo.router, error_handler.router)
+    router.include_routers(admin.router, start.router, help.router, order.router, cart_orders_settings.router,
+                           error_handler.router, group_start.router)
 
     return router
