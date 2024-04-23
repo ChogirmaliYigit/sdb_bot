@@ -1,5 +1,9 @@
+import requests
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
 
 
 class TelegramUser(models.Model):
@@ -155,3 +159,45 @@ class ChatOrderMessage(models.Model):
 
     class Meta:
         db_table = "chat_order_messages"
+
+
+@receiver(post_save, sender=Order)
+def change_chat_message(sender, **kwargs):
+    order = kwargs.get("instance")
+    order_statuses = {
+        "in_processing": "Jarayonda",
+        "confirmed": "Tasdiqlangan",
+        "success": "Muvaffaqiyatli",
+        "canceled": "Bekor qilingan",
+        "payment_canceled": "To'lov bekor qilingan",
+        "refunded": "Qaytarilgan",
+    }
+    payment_status = "To'langan✅" if order.is_paid else "To'lanmagan❌"
+    branch = Branch.objects.get(id=order.branch_id)
+    order_products = OrderProduct.objects.filter(order=order)
+    product_names = []
+    for order_product in order_products:
+        product_names.append(order_product.product.name)
+
+    text = (f"<b>№{order.pk} raqamli buyurtma:</b>\n\n"
+            f"📱Telefon raqam: {order.user.phone_number}\n"
+            f"📦Holati: <u>{order_statuses.get(order.status)}</u>\n"
+            f"💸To'lov holati: {payment_status}\n"
+            f"🏢Filial: {branch.name}\n"
+            f"📋Mahsulotlar: <b>{', '.join(product_names)}</b>\n\n"
+            f"<b>💸Umumiy narx: {order.total_price} so'm</b>")
+
+    chat_order_messages = ChatOrderMessage.objects.filter(order=order)
+    for chat_order_message in chat_order_messages:
+        try:
+            requests.post(
+                url=f"https://api.telegram.org/bot{settings.BOT_TOKEN}/editMessageText",
+                data={
+                    "chat_id": chat_order_message.chat.chat_id,
+                    "message_id": chat_order_message.message_id,
+                    "text": text,
+                    "parse_mode": "html",
+                },
+            )
+        except Exception as err:
+            print(err)

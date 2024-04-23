@@ -5,6 +5,7 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.enums.content_type import ContentType
 from aiogram.client.session.middlewares.request_logging import logger
 from aiogram.fsm.context import FSMContext
+from asyncpg.exceptions import UniqueViolationError
 from loader import db, bot
 from data.config import ADMINS
 from utils.extra_datas import make_title
@@ -78,7 +79,11 @@ async def start_user(message: types.Message, state: FSMContext):
         phone_number = None
 
     if phone_number:
-        await db.update_user_phone_number(phone_number=phone_number, telegram_id=message.from_user.id)
-        await message.answer("Telefon raqam saqlandi!✅", reply_markup=types.ReplyKeyboardRemove())
-        await message.answer("Nimadan boshlaymiz?", reply_markup=main_markup)
-        await state.clear()
+        try:
+            await db.update_user_phone_number(phone_number=phone_number, telegram_id=message.from_user.id)
+            await message.answer("Telefon raqam saqlandi!✅", reply_markup=types.ReplyKeyboardRemove())
+            await message.answer("Nimadan boshlaymiz?", reply_markup=main_markup)
+            await state.clear()
+        except UniqueViolationError as err:
+            logger.error(err)
+            await message.answer("Ushbu telefon raqam oldin ro'yxatga olingan, boshqa raqamni sinab ko'ring.")

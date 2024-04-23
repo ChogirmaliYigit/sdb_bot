@@ -140,12 +140,12 @@ async def my_orders_markup(orders, index: int = 0) -> Tuple[str, Union[InlineKey
         product = await db.get_product(id=order_product.get("product_id"))
         product_names.append(product.get("name"))
 
-    text = (f"<b>#{order.get('id')} raqamli buyurtma:</b>\n\n"
-            f"Telefon raqam: {user.get('phone_number')}\n"
-            f"Holati: <u>{order_statuses.get(order.get('status'))}</u>\n"
-            f"To'lov holati: {payment_status}\n"
-            f"Filial: {branch.get('name')}\n"
-            f"Mahsulotlar: <b>{', '.join(product_names)}</b>\n\n"
+    text = (f"<b>№{order.get('id')} raqamli buyurtma:</b>\n\n"
+            f"📱Telefon raqam: {user.get('phone_number')}\n"
+            f"📦Holati: <u>{order_statuses.get(order.get('status'))}</u>\n"
+            f"💸To'lov holati: {payment_status}\n"
+            f"🏢Filial: {branch.get('name')}\n"
+            f"📋Mahsulotlar: <b>{', '.join(product_names)}</b>\n\n"
             f"<b>💸Umumiy narx: {order.get('total_price')} so'm</b>")
 
     pagination_keyboard = []

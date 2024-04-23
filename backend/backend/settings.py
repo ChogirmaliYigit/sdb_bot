@@ -31,6 +31,8 @@ DEBUG = env.bool("DEBUG", False)
 
 ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", "").split(",")
 
+BOT_TOKEN = env.str("BOT_TOKEN")
+
 
 # Application definition
 

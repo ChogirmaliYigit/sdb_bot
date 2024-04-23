@@ -28,7 +28,8 @@ main_markup = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text="Sozlamalar ⚙️"),
-        ]
+            KeyboardButton(text="Filiallar 🏢"),
+        ],
     ],
     resize_keyboard=True,
 )

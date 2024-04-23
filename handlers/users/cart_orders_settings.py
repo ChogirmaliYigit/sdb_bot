@@ -227,7 +227,7 @@ async def _order(call: types.CallbackQuery, state: FSMContext):
 @router.message(F.text == "Buyurtmalarim 🗂")
 async def my_orders(message: types.Message, state: FSMContext):
     user = await db.get_user(telegram_id=message.from_user.id)
-    orders = await db.select_orders(user_id=user.get("id"))
+    orders = sorted(await db.select_orders(user_id=user.get("id")), reverse=True)
     if orders:
         text, markup = await my_orders_markup(orders)
         await message.answer(text, reply_markup=markup)
@@ -248,7 +248,7 @@ async def my_orders_paginate(call: types.CallbackQuery, state: FSMContext):
         await state.set_state()
     else:
         user = await db.get_user(telegram_id=call.from_user.id)
-        orders = await db.select_orders(user_id=user.get("id"))
+        orders = sorted(await db.select_orders(user_id=user.get("id")), reverse=True)
         action, index = call.data.split("_")
         text, markup = await my_orders_markup(orders, int(index))
         if text and markup:
@@ -270,3 +270,9 @@ async def settings_actions(message: types.Message, state: FSMContext):
     elif message.text == "◀️️ Orqaga":
         await message.answer("Nimadan boshlaymiz?", reply_markup=main_markup)
         await state.set_state()
+
+
+@router.message(F.text == "Filiallar 🏢")
+async def _branches(message: types.Message):
+    text, markup = await branches_markup(branches=await db.select_branches())
+    await message.answer(text, disable_web_page_preview=True)
