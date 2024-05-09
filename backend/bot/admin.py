@@ -25,16 +25,9 @@ class TelegramUserAdmin(ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(ModelAdmin):
-    list_display = ("name", "parent", )
-    fields = ("name", "description", "image", "parent",)
-    search_fields = ("name", "description", "id", "parent",)
-    list_filter = ("parent", )
-    list_filter_submit = True
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "parent":
-            kwargs["queryset"] = Category.objects.filter(parent__isnull=True)  # Filter top-level categories
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    list_display = ("name", )
+    fields = ("name", "description", "image",)
+    search_fields = ("name", "description", "id",)
 
 
 @admin.register(Product)

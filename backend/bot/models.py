@@ -24,17 +24,9 @@ class Category(models.Model):
     name = models.CharField(verbose_name="Nomi", max_length=300)
     description = models.TextField(verbose_name="Qo'shimcha ma'lumoti", null=True, blank=True)
     image = models.ImageField(verbose_name="Rasmi", upload_to="categories/", null=True, blank=True)
-    parent = models.ForeignKey(
-        "self",
-        on_delete=models.CASCADE,
-        related_name="sub_categories",
-        verbose_name="Tepa kategoriya",
-        null=True,
-        blank=True,
-    )
 
     def __str__(self):
-        return f"{self.name} ({self.parent.name})" if self.parent else self.name
+        return self.name
 
     class Meta:
         db_table = "categories"

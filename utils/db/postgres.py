@@ -74,21 +74,10 @@ class Database:
     async def get_category(self, **kwargs):
         sql = "SELECT * FROM categories WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
-        sql += " AND parent_id IS NULL"
         return await self.execute(sql, *parameters, fetchrow=True)
-
-    async def get_sub_category(self, **kwargs):
-        sql = "SELECT * FROM categories WHERE "
-        sql, parameters = self.format_args(sql, parameters=kwargs)
-        sql += " AND parent_id IS NOT NULL"
-        return await self.execute(sql, *parameters, fetchrow=True)
-
-    async def get_sub_categories(self, parent_id):
-        sql = "SELECT * FROM categories WHERE parent_id=$1"
-        return await self.execute(sql, parent_id, fetch=True)
 
     async def select_categories(self):
-        sql = "SELECT * FROM categories WHERE parent_id IS NULL"
+        sql = "SELECT * FROM categories"
         return await self.execute(sql, fetch=True)
 
     async def select_category_products(self, category_id: int):
